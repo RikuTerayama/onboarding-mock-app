@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="card">
+    <h2 style="margin-top:0;">Reject onboarding</h2>
+    <div class="muted small">Simulates Slack "Reject" with a reason.</div>
+  </div>
+
+  <div class="card">
+    <form method="post" action="/onboarding/{{ onboarding.id }}/reject">
+      <label>Reason</label>
+      <textarea name="reason" rows="4" placeholder="e.g., start date not confirmed / role mismatch" required></textarea>
+      <div style="margin-top:14px;">
+        <button class="btn btn-danger" type="submit">Reject</button>
+        <a class="btn btn-ghost" href="/onboarding/{{ onboarding.id }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
