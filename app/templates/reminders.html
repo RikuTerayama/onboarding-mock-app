@@ -1,27 +1,28 @@
 {% extends "layout.html" %}
 {% block content %}
+  {% set current_lang = lang|default("en") %}
   <div class="card">
-    <h2 style="margin:0 0 6px 0;">Reminders (mock)</h2>
-    <div class="muted">Simulates the daily reminder job. Click "Run reminders" to preview DM messages.</div>
+    <h2 style="margin:0 0 6px 0;">{{ t("reminders_title", current_lang) }}</h2>
+    <div class="muted">{{ t("reminders_desc", current_lang) }}</div>
     <form method="post" action="/reminders/run" style="margin-top:12px;">
-      <button class="btn btn-primary" type="submit">Run reminders</button>
+      <button class="btn btn-primary" type="submit">{{ t("reminders_run", current_lang) }}</button>
     </form>
   </div>
 
   <div class="card">
-    <h3 style="margin-top:0;">Tasks due within 7 days</h3>
+    <h3 style="margin-top:0;">{{ t("reminders_tasks_due", current_lang) }}</h3>
     {% if tasks|length == 0 %}
-      <div class="muted">No tasks found.</div>
+      <div class="muted">{{ t("reminders_no_tasks", current_lang) }}</div>
     {% else %}
       <table>
-        <thead><tr><th>Owner</th><th>Task</th><th>Due</th><th>Last reminded</th></tr></thead>
+        <thead><tr><th>{{ t("detail_owner", current_lang) }}</th><th>{{ t("detail_task", current_lang) }}</th><th>{{ t("detail_due", current_lang) }}</th><th>{{ t("reminders_last_reminded", current_lang) }}</th></tr></thead>
         <tbody>
-          {% for t in tasks %}
+          {% for task in tasks %}
           <tr>
-            <td>{{ t.owner }}</td>
-            <td><strong>{{ t.title }}</strong><div class="muted small">{{ t.description }}</div></td>
-            <td>{{ t.due_date }}</td>
-            <td class="muted small">{{ t.last_reminded_at[:19].replace("T"," ") if t.last_reminded_at else "-" }}</td>
+            <td>{{ task.owner }}</td>
+            <td><strong>{{ task.title }}</strong><div class="muted small">{{ task.description }}</div></td>
+            <td>{{ task.due_date }}</td>
+            <td class="muted small">{{ task.last_reminded_at[:19].replace("T"," ") if task.last_reminded_at else "-" }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -31,10 +32,10 @@
 
   {% if messages %}
   <div class="card">
-    <h3 style="margin-top:0;">Reminder DM previews</h3>
+    <h3 style="margin-top:0;">{{ t("reminders_dm_previews", current_lang) }}</h3>
     {% for m in messages %}
       <div class="card dm" style="box-shadow:none; border:1px solid #eee;">
-        <div class="muted small">To: {{ m.to }}</div>
+        <div class="muted small">{{ t("detail_to", current_lang) }}: {{ m.to }}</div>
         <div><strong>{{ m.title }}</strong></div>
         <div class="muted">{{ m.body }}</div>
       </div>
