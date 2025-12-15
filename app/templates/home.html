@@ -1,30 +1,30 @@
 {% extends "layout.html" %}
 {% block content %}
+  {% set current_lang = lang|default("en") %}
   <div class="card">
-    <h2 style="margin:0 0 6px 0;">What this demo shows</h2>
+    <h2 style="margin:0 0 6px 0;">{{ t("home_what_demo", current_lang) }}</h2>
     <div class="muted">
-      Create an onboarding request → manager approval → DM previews + tasks → reminders.
-      <br/>Use this to align on the experience before building Slack + Render integrated PoC.
+      {{ t("home_demo_desc", current_lang)|replace('\n', '<br/>')|safe }}
     </div>
     <div style="margin-top:12px;">
-      <a class="btn btn-primary" href="/onboard">Create onboarding</a>
+      <a class="btn btn-primary" href="/onboard">{{ t("home_create_btn", current_lang) }}</a>
     </div>
   </div>
 
   <div class="card">
-    <h3 style="margin-top:0;">Recent onboardings</h3>
+    <h3 style="margin-top:0;">{{ t("home_recent", current_lang) }}</h3>
     {% if onboardings|length == 0 %}
-      <div class="muted">No records yet. Create one.</div>
+      <div class="muted">{{ t("home_no_records", current_lang) }}</div>
     {% else %}
       <table>
         <thead>
-          <tr><th>Created</th><th>Employee</th><th>Role/Grade</th><th>Start</th><th>Status</th></tr>
+          <tr><th>{{ t("home_created", current_lang) }}</th><th>{{ t("home_employee", current_lang) }}</th><th>{{ t("home_role_grade", current_lang) }}</th><th>{{ t("home_start", current_lang) }}</th><th>{{ t("home_status", current_lang) }}</th></tr>
         </thead>
         <tbody>
           {% for o in onboardings %}
           <tr>
             <td class="muted small">{{ o.created_at[:19].replace("T"," ") }}</td>
-            <td><a href="/onboarding/{{ o.id }}">{{ o.employee_name }}</a><div class="muted small">Manager: {{ o.manager_name }}</div></td>
+            <td><a href="/onboarding/{{ o.id }}">{{ o.employee_name }}</a><div class="muted small">{{ t("home_manager", current_lang) }}: {{ o.manager_name }}</div></td>
             <td>{{ o.role }}/{{ o.grade }}</td>
             <td>{{ o.start_date }}</td>
             <td><span class="badge">{{ o.status }}</span></td>
