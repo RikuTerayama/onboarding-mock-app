@@ -1,26 +1,27 @@
 {% extends "layout.html" %}
 {% block content %}
+  {% set current_lang = lang|default("en") %}
   <div class="card">
-    <h2 style="margin:0 0 6px 0;">Create onboarding (mock)</h2>
-    <div class="muted">Simulates Slack modal input. Submit to create a PENDING request.</div>
+    <h2 style="margin:0 0 6px 0;">{{ t("create_title", current_lang) }}</h2>
+    <div class="muted">{{ t("create_desc", current_lang) }}</div>
   </div>
 
   <div class="card">
     <form method="post" action="/onboard">
       <div class="row">
         <div class="col">
-          <label>Employee name</label>
+          <label>{{ t("create_employee_name", current_lang) }}</label>
           <input name="employee_name" placeholder="e.g., Taro Yamada" required />
         </div>
         <div class="col">
-          <label>Manager name</label>
+          <label>{{ t("create_manager_name", current_lang) }}</label>
           <input name="manager_name" placeholder="e.g., Hanako Suzuki" required />
         </div>
       </div>
 
       <div class="row">
         <div class="col">
-          <label>Role</label>
+          <label>{{ t("create_role", current_lang) }}</label>
           <select name="role" required>
             <option value="general">General</option>
             <option value="eng">Engineer</option>
@@ -28,7 +29,7 @@
           </select>
         </div>
         <div class="col">
-          <label>Grade</label>
+          <label>{{ t("create_grade", current_lang) }}</label>
           <select name="grade" required>
             <option value="newgrad">New grad</option>
             <option value="mid">Mid career</option>
@@ -37,14 +38,24 @@
           </select>
         </div>
         <div class="col">
-          <label>Start date</label>
+          <label>{{ t("create_start_date", current_lang) }}</label>
           <input type="date" name="start_date" required />
         </div>
       </div>
 
+      <div class="row">
+        <div class="col">
+          <label>{{ t("create_lang", current_lang) }}</label>
+          <select name="lang">
+            <option value="en" {{ 'selected' if current_lang == 'en' else '' }}>English</option>
+            <option value="ja" {{ 'selected' if current_lang == 'ja' else '' }}>日本語</option>
+          </select>
+        </div>
+      </div>
+
       <div style="margin-top:14px;">
-        <button class="btn btn-primary" type="submit">Create (PENDING)</button>
-        <a class="btn btn-ghost" href="/">Cancel</a>
+        <button class="btn btn-primary" type="submit">{{ t("create_submit", current_lang) }}</button>
+        <a class="btn btn-ghost" href="/">{{ t("create_cancel", current_lang) }}</a>
       </div>
     </form>
   </div>
