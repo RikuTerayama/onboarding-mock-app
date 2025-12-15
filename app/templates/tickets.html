@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+{% block content %}
+  {% set current_lang = lang|default("en") %}
+  <div class="card">
+    <h2 style="margin:0 0 12px 0;">HR Tickets</h2>
+    <div class="muted small" style="margin-bottom: 12px;">
+      Escalated questions from chat (Web and Slack)
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="margin-bottom: 12px;">
+      <a href="/chat" class="btn btn-primary">Go to Chat</a>
+      <a href="/" class="btn btn-ghost">Home</a>
+    </div>
+    
+    {% if tickets|length == 0 %}
+      <div class="muted">No tickets yet.</div>
+    {% else %}
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Created</th>
+            <th>Source</th>
+            <th>Question</th>
+            <th>User Ref</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in tickets %}
+          <tr>
+            <td class="small">{{ ticket.id[:8] }}</td>
+            <td class="small muted">{{ ticket.created_at[:19].replace("T"," ") }}</td>
+            <td><span class="badge">{{ ticket.source }}</span></td>
+            <td style="max-width: 300px;">{{ ticket.question }}</td>
+            <td class="small muted">{{ ticket.user_ref or "-" }}</td>
+            <td>
+              <span class="badge" style="background: {{ '#eef2ff' if ticket.status == 'open' else '#d1fae5' }};">
+                {{ ticket.status }}
+              </span>
+            </td>
+            <td>
+              {% if ticket.status == 'open' %}
+              <form method="post" action="/tickets/{{ ticket.id }}/close" style="display: inline;">
+                <button type="submit" class="btn btn-ghost" style="padding: 4px 8px; font-size: 12px;">Close</button>
+              </form>
+              {% else %}
+              <span class="muted small">{{ ticket.resolved_at[:19].replace("T"," ") if ticket.resolved_at else "-" }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+{% endblock %}
+
