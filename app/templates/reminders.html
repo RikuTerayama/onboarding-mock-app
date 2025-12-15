@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="card">
+    <h2 style="margin:0 0 6px 0;">Reminders (mock)</h2>
+    <div class="muted">Simulates the daily reminder job. Click "Run reminders" to preview DM messages.</div>
+    <form method="post" action="/reminders/run" style="margin-top:12px;">
+      <button class="btn btn-primary" type="submit">Run reminders</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Tasks due within 7 days</h3>
+    {% if tasks|length == 0 %}
+      <div class="muted">No tasks found.</div>
+    {% else %}
+      <table>
+        <thead><tr><th>Owner</th><th>Task</th><th>Due</th><th>Last reminded</th></tr></thead>
+        <tbody>
+          {% for t in tasks %}
+          <tr>
+            <td>{{ t.owner }}</td>
+            <td><strong>{{ t.title }}</strong><div class="muted small">{{ t.description }}</div></td>
+            <td>{{ t.due_date }}</td>
+            <td class="muted small">{{ t.last_reminded_at[:19].replace("T"," ") if t.last_reminded_at else "-" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+
+  {% if messages %}
+  <div class="card">
+    <h3 style="margin-top:0;">Reminder DM previews</h3>
+    {% for m in messages %}
+      <div class="card dm" style="box-shadow:none; border:1px solid #eee;">
+        <div class="muted small">To: {{ m.to }}</div>
+        <div><strong>{{ m.title }}</strong></div>
+        <div class="muted">{{ m.body }}</div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endblock %}
