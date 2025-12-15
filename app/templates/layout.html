@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>{{ title or "Onboarding Mock" }}</title>
+    <title>{{ title or t("home_title", lang|default("en")) }}</title>
     <style>
       body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: #f6f7f9;}
       header { background:#111827; color:#fff; padding:16px 20px; }
@@ -24,16 +24,24 @@
       th, td { padding:10px; border-bottom:1px solid #eee; vertical-align:top; }
       .dm { border-left: 4px solid #111827; padding-left: 12px; }
       .small { font-size: 12px; }
+      .lang-switcher { float: right; margin-top: 4px; }
+      .lang-switcher a { opacity: 1; font-weight: bold; }
+      .lang-switcher a.active { text-decoration: underline; }
     </style>
   </head>
   <body>
     <header>
-      <strong>Onboarding Mock</strong>
-      <span class="small" style="margin-left:10px; color:#cbd5e1;">Executive demo (no Slack integration)</span>
+      <strong>{{ t("home_title", lang|default("en")) }}</strong>
+      <span class="small" style="margin-left:10px; color:#cbd5e1;">{{ t("home_subtitle", lang|default("en")) }}</span>
+      <div class="lang-switcher">
+        {% set current_lang = lang|default("en") %}
+        <a href="/set-lang?lang=en&next={{ request.url.path }}" class="{{ 'active' if current_lang == 'en' else '' }}">{{ t("lang_en", current_lang) }}</a>
+        <a href="/set-lang?lang=ja&next={{ request.url.path }}" class="{{ 'active' if current_lang == 'ja' else '' }}">{{ t("lang_ja", current_lang) }}</a>
+      </div>
       <nav style="margin-top:10px;">
-        <a href="/">Home</a>
-        <a href="/onboard">Create</a>
-        <a href="/reminders">Reminders</a>
+        <a href="/">{{ t("nav_home", lang|default("en")) }}</a>
+        <a href="/onboard">{{ t("nav_create", lang|default("en")) }}</a>
+        <a href="/reminders">{{ t("nav_reminders", lang|default("en")) }}</a>
       </nav>
     </header>
     <main>
