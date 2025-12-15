@@ -10,11 +10,22 @@ from fastapi.templating import Jinja2Templates
 from app.db import init_db, get_conn
 from app.db.repo import (
     create_onboarding, get_onboarding, list_onboardings, set_status,
-    add_task, list_tasks, mark_done
+    add_task, list_tasks, mark_done,
+    create_ticket, list_tickets, close_ticket
 )
 from app.services.template_engine import generate
+from app.services.qa_engine import process_question
+from app.chat.blocks import create_user_message, create_bot_response
 from app.utils.time import now_jst, parse_date
 from app.i18n import t
+
+# Slack Bolt統合（オプション）
+try:
+    from app.slack.bolt_app import handler
+    SLACK_ENABLED = handler is not None
+except ImportError:
+    SLACK_ENABLED = False
+    handler = None
 
 app = FastAPI(title="Onboarding Mock App", version="0.1.0")
 templates = Jinja2Templates(directory=str((__import__("pathlib").Path(__file__).parent / "templates")))
@@ -213,3 +224,93 @@ def reminders_run(request: Request):
     tasks = [dict(r) for r in rows2]
 
     return templates.TemplateResponse("reminders.html", {"request": request, "tasks": tasks, "messages": messages, "lang": lang})
+
+@app.get("/chat", response_class=HTMLResponse)
+def chat(request: Request):
+    """WebチャットUI"""
+    lang = get_lang(request)
+    request.state.lang = lang
+    return templates.TemplateResponse("chat.html", {"request": request, "lang": lang})
+
+@app.post("/chat/ask")
+async def chat_ask(request: Request):
+    """チャット質問を処理"""
+    from fastapi import Body
+    data = await request.json()
+    question = data.get("question", "")
+    
+    # QAエンジンで処理
+    qa_response = process_question(question)
+    
+    # Block Kit風のblocksを生成
+    blocks = create_bot_response(
+        text=qa_response.answer_text,
+        confidence=qa_response.confidence,
+        references=qa_response.references,
+        escalate=len(qa_response.suggested_actions) > 0
+    )
+    
+    return {"blocks": blocks}
+
+@app.post("/chat/escalate")
+async def chat_escalate(request: Request):
+    """Escalate to HR（Webチャットから）"""
+    from fastapi import Body
+    data = await request.json()
+    question = data.get("question", "")
+    
+    ticket_id = create_ticket(
+        source="web",
+        question=question,
+        user_ref=None
+    )
+    
+    return {"ticket_id": ticket_id, "status": "escalated"}
+
+@app.get("/tickets", response_class=HTMLResponse)
+def tickets(request: Request):
+    """チケット一覧（HR用）"""
+    lang = get_lang(request)
+    request.state.lang = lang
+    tickets_list = list_tickets()
+    return templates.TemplateResponse("tickets.html", {"request": request, "tickets": tickets_list, "lang": lang})
+
+@app.post("/tickets/{ticket_id}/close")
+def close_ticket_route(ticket_id: str):
+    """チケットをクローズ"""
+    close_ticket(ticket_id)
+    return RedirectResponse(url="/tickets", status_code=303)
+
+# Slack Events API endpoints
+if SLACK_ENABLED:
+    @app.post("/slack/events")
+    async def slack_events(request: Request):
+        """Slack Events API endpoint"""
+        return await handler.handle(request)
+    
+    @app.post("/slack/interactive")
+    async def slack_interactive(request: Request):
+        """Slack Interactive Components endpoint"""
+        return await handler.handle(request)
+    
+    @app.post("/slack/commands")
+    async def slack_commands(request: Request):
+        """Slack Slash Commands endpoint"""
+        return await handler.handle(request)
+
+# Slack Events API endpoint
+if SLACK_ENABLED:
+    @app.post("/slack/events")
+    async def slack_events(request: Request):
+        """Slack Events API endpoint"""
+        return await handler.handle(request)
+    
+    @app.post("/slack/interactive")
+    async def slack_interactive(request: Request):
+        """Slack Interactive Components endpoint"""
+        return await handler.handle(request)
+    
+    @app.post("/slack/commands")
+    async def slack_commands(request: Request):
+        """Slack Slash Commands endpoint"""
+        return await handler.handle(request)
