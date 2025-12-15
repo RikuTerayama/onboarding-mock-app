@@ -49,6 +49,22 @@ def init_db() -> None:
         )
         """
     )
+    
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS tickets (
+            id TEXT PRIMARY KEY,
+            created_at TEXT NOT NULL,
+            source TEXT NOT NULL,
+            user_ref TEXT,
+            question TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'open',
+            channel_ref TEXT,
+            resolved_at TEXT
+        )
+        """
+    )
+    
     conn.commit()
     conn.close()
 
