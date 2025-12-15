@@ -22,10 +22,18 @@ def init_db() -> None:
             grade TEXT NOT NULL,
             start_date TEXT NOT NULL,
             status TEXT NOT NULL,
-            rejection_reason TEXT
+            rejection_reason TEXT,
+            lang TEXT NOT NULL DEFAULT 'en'
         )
         """
     )
+    
+    # Migration: Add lang column if it doesn't exist
+    cur.execute("PRAGMA table_info(onboarding_requests)")
+    columns = [row[1] for row in cur.fetchall()]
+    if "lang" not in columns:
+        cur.execute("ALTER TABLE onboarding_requests ADD COLUMN lang TEXT NOT NULL DEFAULT 'en'")
+    
     cur.execute(
         """
         CREATE TABLE IF NOT EXISTS tasks (
