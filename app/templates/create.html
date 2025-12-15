@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="card">
+    <h2 style="margin:0 0 6px 0;">Create onboarding (mock)</h2>
+    <div class="muted">Simulates Slack modal input. Submit to create a PENDING request.</div>
+  </div>
+
+  <div class="card">
+    <form method="post" action="/onboard">
+      <div class="row">
+        <div class="col">
+          <label>Employee name</label>
+          <input name="employee_name" placeholder="e.g., Taro Yamada" required />
+        </div>
+        <div class="col">
+          <label>Manager name</label>
+          <input name="manager_name" placeholder="e.g., Hanako Suzuki" required />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label>Role</label>
+          <select name="role" required>
+            <option value="general">General</option>
+            <option value="eng">Engineer</option>
+            <option value="cs">CS</option>
+          </select>
+        </div>
+        <div class="col">
+          <label>Grade</label>
+          <select name="grade" required>
+            <option value="newgrad">New grad</option>
+            <option value="mid">Mid career</option>
+            <option value="manager">Manager</option>
+            <option value="exec">Executive</option>
+          </select>
+        </div>
+        <div class="col">
+          <label>Start date</label>
+          <input type="date" name="start_date" required />
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <button class="btn btn-primary" type="submit">Create (PENDING)</button>
+        <a class="btn btn-ghost" href="/">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
