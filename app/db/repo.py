@@ -5,14 +5,14 @@ import uuid
 from app.db import get_conn
 from app.utils.time import now_jst
 
-def create_onboarding(employee_name: str, manager_name: str, role: str, grade: str, start_date: str) -> str:
+def create_onboarding(employee_name: str, manager_name: str, role: str, grade: str, start_date: str, lang: str = "en") -> str:
     oid = str(uuid.uuid4())
     conn = get_conn()
     conn.execute(
         """INSERT INTO onboarding_requests
-           (id, created_at, employee_name, manager_name, role, grade, start_date, status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-        (oid, now_jst().isoformat(), employee_name, manager_name, role, grade, start_date, "PENDING"),
+           (id, created_at, employee_name, manager_name, role, grade, start_date, status, lang)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (oid, now_jst().isoformat(), employee_name, manager_name, role, grade, start_date, "PENDING", lang),
     )
     conn.commit()
     conn.close()
