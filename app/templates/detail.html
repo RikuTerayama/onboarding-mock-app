@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <h2 style="margin:0;">Onboarding</h2>
+        <div class="muted small">ID: {{ onboarding.id }}</div>
+      </div>
+      <div class="col" style="text-align:right;">
+        <span class="badge">{{ onboarding.status }}</span>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <div class="col">
+        <div><strong>Employee:</strong> {{ onboarding.employee_name }}</div>
+        <div><strong>Manager:</strong> {{ onboarding.manager_name }}</div>
+      </div>
+      <div class="col">
+        <div><strong>Role/Grade:</strong> {{ onboarding.role }}/{{ onboarding.grade }}</div>
+        <div><strong>Start:</strong> {{ onboarding.start_date }}</div>
+        <div class="muted small">Template used: {{ template_used }}</div>
+      </div>
+    </div>
+  </div>
+
+  {% if onboarding.status == "PENDING" %}
+    <div class="card">
+      <h3 style="margin-top:0;">Manager approval (mock)</h3>
+      <div class="muted">In Slack, this would be a DM with Approve/Reject buttons.</div>
+      <div style="margin-top:10px;">
+        <form method="post" action="/onboarding/{{ onboarding.id }}/approve" style="display:inline;">
+          <button class="btn btn-primary" type="submit">Approve</button>
+        </form>
+        <a class="btn btn-danger" href="/onboarding/{{ onboarding.id }}/reject">Reject</a>
+      </div>
+    </div>
+  {% elif onboarding.status == "REJECTED" %}
+    <div class="card">
+      <h3 style="margin-top:0;">Rejected</h3>
+      <div class="muted">Reason: {{ onboarding.rejection_reason or "-" }}</div>
+    </div>
+  {% endif %}
+
+  {% if onboarding.status == "APPROVED" %}
+    <div class="row">
+      <div class="col card dm">
+        <h3 style="margin-top:0;">DM Preview: Employee</h3>
+        <div class="muted small">To: {{ onboarding.employee_name }}</div>
+        <hr style="border:none; border-top:1px solid #eee;"/>
+        <p><strong>Welcome!</strong> Here is your onboarding checklist and 30/60/90-day plan.</p>
+
+        <h4>ToDo</h4>
+        <ul>
+          {% for t in tasks if t.owner == onboarding.employee_name %}
+            <li><strong>{{ t.title }}</strong> — {{ t.description }} <span class="muted small">(due {{ t.due_date }})</span></li>
+          {% endfor %}
+        </ul>
+
+        <h4>30/60/90</h4>
+        <ul>
+          <li><strong>Day 30:</strong> {{ plan.employee.day30 }}</li>
+          <li><strong>Day 60:</strong> {{ plan.employee.day60 }}</li>
+          <li><strong>Day 90:</strong> {{ plan.employee.day90 }}</li>
+        </ul>
+
+        <div class="muted small">Note: Final decisions require manager/HR approval.</div>
+      </div>
+
+      <div class="col card dm">
+        <h3 style="margin-top:0;">DM Preview: Manager</h3>
+        <div class="muted small">To: {{ onboarding.manager_name }}</div>
+        <hr style="border:none; border-top:1px solid #eee;"/>
+        <p><strong>Approved.</strong> Here are your manager tasks and coaching plan.</p>
+
+        <h4>Manager ToDo</h4>
+        <ul>
+          {% for t in tasks if t.owner == onboarding.manager_name %}
+            <li><strong>{{ t.title }}</strong> — {{ t.description }} <span class="muted small">(due {{ t.due_date }})</span></li>
+          {% endfor %}
+        </ul>
+
+        <h4>30/60/90 (Manager view)</h4>
+        <ul>
+          <li><strong>Day 30:</strong> {{ plan.manager.day30 }}</li>
+          <li><strong>Day 60:</strong> {{ plan.manager.day60 }}</li>
+          <li><strong>Day 90:</strong> {{ plan.manager.day90 }}</li>
+        </ul>
+
+        <div class="muted small">Note: Exceptions should be escalated to HR.</div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="card">
+    <h3 style="margin-top:0;">Tasks (storage)</h3>
+    {% if tasks|length == 0 %}
+      <div class="muted">No tasks yet. Approve to generate tasks.</div>
+    {% else %}
+      <table>
+        <thead><tr><th>Owner</th><th>Task</th><th>Due</th><th>Done</th></tr></thead>
+        <tbody>
+          {% for t in tasks %}
+          <tr>
+            <td>{{ t.owner }}</td>
+            <td><strong>{{ t.title }}</strong><div class="muted small">{{ t.description }}</div></td>
+            <td>{{ t.due_date }}</td>
+            <td>
+              <form method="post" action="/tasks/{{ t.id }}/toggle" style="margin:0;">
+                <input type="hidden" name="redirect_to" value="/onboarding/{{ onboarding.id }}"/>
+                <button class="btn btn-ghost" type="submit">{{ "✅" if t.is_done else "⬜" }}</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+{% endblock %}
